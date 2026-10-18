@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WaveChat — 实时聊天</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Auth Page -->
+<div class="auth-page" id="authPage">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <h1>Wave<span>Chat</span></h1>
+      <p>实时聊天 · 好友 · 群聊</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-auth="login">登录</button>
+      <button class="auth-tab" data-auth="register">注册</button>
+    </div>
+    <div id="loginForm">
+      <div class="auth-form">
+        <label>用户名</label>
+        <input id="loginUsername" placeholder="输入用户名" autocomplete="username">
+        <label>密码</label>
+        <input id="loginPassword" type="password" placeholder="输入密码" autocomplete="current-password">
+        <div class="auth-error" id="loginError"></div>
+        <button class="auth-submit" id="loginBtn">登录</button>
+      </div>
+    </div>
+    <div id="registerForm" style="display:none">
+      <div class="auth-form">
+        <label>用户名</label>
+        <input id="regUsername" placeholder="3-24位字母、数字或下划线" autocomplete="username">
+        <label>显示名称</label>
+        <input id="regName" placeholder="你的昵称（可选）" autocomplete="nickname">
+        <label>密码</label>
+        <input id="regPassword" type="password" placeholder="至少6位" autocomplete="new-password">
+        <div class="auth-error" id="regError"></div>
+        <button class="auth-submit" id="registerBtn">注册并登录</button>
+      </div>
+    </div>
+    <div class="auth-hint">
+      演示账号：alex / kexin / xiaoyu / mia<br>密码均为 <b>demo1234</b>
+    </div>
+  </div>
+</div>
+
+<!-- Chat App -->
+<div class="app" id="chatApp" style="display:none">
+  <aside class="sidebar">
+    <div class="brandrow">
+      <div class="brand">Wave<span>Chat</span></div>
+      <div class="user-badge">
+        <div class="avatar" id="myAvatar" style="background:#3390ec">W</div>
+        <div>
+          <div id="myName" style="font-weight:600;font-size:13px;color:var(--ink)"></div>
+          <div id="myUsername" style="font-size:11px"></div>
+        </div>
+        <button class="logout-btn" id="logoutBtn">退出</button>
+      </div>
+    </div>
+    <div class="search"><input id="search" placeholder="搜索用户名、好友或群聊"></div>
+    <div class="tabs">
+      <button class="tab active" data-filter="all">全部</button>
+      <button class="tab" data-filter="direct">私聊</button>
+      <button class="tab" data-filter="group">群聊</button>
+      <button class="tab" data-filter="requests" id="requestsTab">申请<span class="badge" id="requestBadge" style="display:none">0</span></button>
+    </div>
+    <div class="list" id="list"></div>
+    <div class="sidebuttons">
+      <button class="btn" id="addFriend">＋ 添加好友</button>
+      <button class="btn primary" id="newGroup">＋ 新建群聊</button>
+      <button class="btn" id="myProfile">个人资料</button>
+      <button class="btn dark" id="adminOpen">管理后台</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="header">
+      <button class="btn" id="backBtn" style="display:none">‹ 返回</button>
+      <div class="avatar" id="headAvatar" style="background:#3390ec">W</div>
+      <div class="headertext">
+        <div class="title" id="headTitle">欢迎使用 WaveChat</div>
+        <div class="status" id="headStatus">选择聊天开始体验</div>
+      </div>
+      <div class="headactions">
+        <button class="btn wide" id="groupInfoBtn" style="display:none">群组信息</button>
+      </div>
+    </header>
+    <section class="messages" id="messages">
+      <div class="empty"><b>欢迎使用 WaveChat</b><p>通过用户名添加好友，或创建一个群聊开始聊天。</p></div>
+    </section>
+    <div class="typing-indicator" id="typingIndicator"></div>
+    <div class="composerwrap">
+      <form class="composer" id="form">
+        <textarea id="message" placeholder="写一条消息…（Enter 发送，Shift+Enter 换行）" rows="1"></textarea>
+        <button class="send" type="submit">➤</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modalback" id="modalback">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Group Info Panel -->
+<div class="group-panel" id="groupPanel">
+  <div class="group-panel-head">
+    <h3>群组信息</h3>
+    <button class="btn sm" id="closeGroupPanel">关闭</button>
+  </div>
+  <div class="group-panel-body" id="groupPanelBody"></div>
+</div>
+
+<div class="notice" id="notice"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

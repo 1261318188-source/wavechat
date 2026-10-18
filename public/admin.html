@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WaveChat 管理后台</title>
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.admin-body{background:#f3f6f9;min-height:100vh;overflow:auto}
+.admin-head{background:linear-gradient(135deg,#172b3a,#24394a);color:white;padding:16px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.admin-head strong{font-size:19px;flex:1}
+.admin-head .back-link{color:#a8c4d8;font-size:13px;text-decoration:none}
+.admin-head .back-link:hover{color:white}
+.admin-container{max-width:1200px;margin:22px auto;padding:0 16px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:white;border:1px solid var(--line);border-radius:14px;padding:18px 20px;transition:.2s}
+.stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-2px)}
+.stat-card span{font-size:12px;color:var(--muted);font-weight:500}
+.stat-card b{display:block;font-size:28px;margin-top:8px;color:var(--ink)}
+.stat-card .trend{font-size:11px;color:var(--green);margin-top:4px}
+.admin-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.admin-tab{border:1px solid var(--line);background:white;border-radius:10px;padding:10px 16px;color:#526675;font-size:13px;font-weight:600;transition:.15s}
+.admin-tab.active{background:var(--blue);color:white;border-color:var(--blue)}
+.admin-tab:hover:not(.active){background:#f5f8fa}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.panel-head{padding:16px 20px;font-weight:700;font-size:15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.panel-head input{flex:1;max-width:280px;padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;outline:none}
+.table-scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:600px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid #edf1f4}
+th{font-size:11px;color:#788995;background:#fafcfd;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+tr:hover td{background:#f9fbfc}
+.state-badge{font-size:11px;padding:4px 10px;border-radius:12px;font-weight:600;display:inline-block}
+.state-badge.active{background:#e3f7ed;color:#187a4b}
+.state-badge.banned{background:#fdeaea;color:#b42c2c}
+.state-badge.admin{background:#e8e0ff;color:#6b4ddb}
+.state-badge.user{background:#e2f1fd;color:#1477c9}
+.admin-login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#172b3a,#2c5364)}
+.admin-login-card{background:white;border-radius:18px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 25px 80px rgba(0,0,0,.3)}
+.admin-login-card h2{font-size:24px;margin-bottom:6px}
+.admin-login-card p{color:var(--muted);font-size:13px;margin-bottom:20px}
+.admin-login-card label{display:block;font-size:13px;font-weight:600;margin:14px 0 6px;color:#405563}
+.admin-login-card input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:14px;outline:none}
+.admin-login-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(51,144,236,.15)}
+.admin-login-btn{width:100%;padding:13px;background:var(--blue);color:white;border-radius:10px;font-size:15px;font-weight:700;margin-top:22px}
+.admin-login-btn:hover{background:var(--blue-dark)}
+.security-note{background:#fff7e4;border:1px solid #f1dfaa;color:#78591c;border-radius:10px;padding:12px;font-size:12px;line-height:1.6;margin-top:16px}
+.log-entry{padding:12px 16px;border-bottom:1px solid #f0f4f7;font-size:13px}
+.log-entry .log-action{font-weight:600;color:var(--blue)}
+.log-entry .log-time{color:var(--muted);font-size:11px;margin-left:8px}
+.log-entry .log-detail{color:#526675;margin-top:4px;font-size:12px}
+.pagination{display:flex;justify-content:center;gap:6px;padding:14px}
+.pagination button{padding:7px 12px;border:1px solid var(--line);border-radius:7px;background:white;font-size:12px}
+.pagination button.active{background:var(--blue);color:white;border-color:var(--blue)}
+.pagination button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:768px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- Admin Login -->
+<div class="admin-login-wrap" id="adminLogin">
+  <div class="admin-login-card">
+    <h2>WaveChat 管理后台</h2>
+    <p>请使用管理员账号登录</p>
+    <label>管理员用户名</label>
+    <input id="adminUser" placeholder="admin" autocomplete="username">
+    <label>密码</label>
+    <input id="adminPass" type="password" placeholder="输入管理员密码" autocomplete="current-password">
+    <div class="auth-error" id="adminError" style="display:none;background:#fdeaea;color:var(--red);padding:10px 14px;border-radius:8px;font-size:13px;margin-top:14px"></div>
+    <button class="admin-login-btn" id="adminLoginBtn">登录</button>
+    <div class="security-note">
+      <b>安全提示：</b>管理后台需要服务器端验证管理员身份。所有操作都会记录审计日志。默认管理员账号在首次启动时创建，请及时修改密码。
+    </div>
+  </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div class="admin-body" id="adminDashboard" style="display:none">
+  <div class="admin-head">
+    <strong>WaveChat 管理后台</strong>
+    <span id="adminWho" style="font-size:13px;color:#a8c4d8"></span>
+    <a href="/" class="back-link">← 返回聊天</a>
+    <button class="btn" id="adminLogout" style="color:white;border-color:#4a6577;background:transparent">退出</button>
+  </div>
+  <div class="admin-container">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="users">用户管理</button>
+      <button class="admin-tab" data-tab="groups">群聊管理</button>
+      <button class="admin-tab" data-tab="messages">消息审计</button>
+      <button class="admin-tab" data-tab="logs">操作日志</button>
+    </div>
+    <div id="tabContent"></div>
+  </div>
+</div>
+
+<div class="notice" id="notice"></div>
+<script src="/js/admin.js"></script>
+</body>
+</html>
