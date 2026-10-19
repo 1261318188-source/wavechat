@@ -1,3 +1,6 @@
+# WaveChat Render 部署配置
+# 免费计划：可直接部署，但免费实例重启后 SQLite 数据会重置（无持久化磁盘）
+# 如需永久保存数据，请使用付费实例并取消下方 disks 注释，或改用 Railway/外部数据库
 services:
   - type: web
     name: wavechat
@@ -18,9 +21,10 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         generateValue: true
-      - key: DB_PATH
-        value: /opt/render/project/src/data/wavechat.db
-    disks:
-      - name: wavechat-data
-        mountPath: /opt/render/project/src/data
-        sizeGB: 1
+      # - key: DB_PATH
+      #   value: /opt/render/project/src/data/wavechat.db
+    # 付费实例持久化磁盘（免费计划不支持）：
+    # disks:
+    #   - name: wavechat-data
+    #     mountPath: /opt/render/project/src/data
+    #     sizeGB: 1
